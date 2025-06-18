@@ -1,4 +1,3 @@
-// models/Event.js
 import mongoose from "mongoose";
 
 const eventSchema = new mongoose.Schema(
@@ -8,17 +7,32 @@ const eventSchema = new mongoose.Schema(
       required: true,
       trim: true,
     },
-    date: {
-      type: Date,
+    description: {
+      type: String,
       required: true,
     },
-    description: {
+    date: {
+      type: String, // Storing as string for simplicity
+      required: true,
+    },
+    time: {
+      type: String,
+      required: true,
+    },
+    price: {
+      type: Number,
+      required: true,
+    },
+    place: {
+      type: String,
+      required: true,
+    },
+    image: {
       type: String,
     },
     createdBy: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
-      required: true,
     },
   },
   { timestamps: true }

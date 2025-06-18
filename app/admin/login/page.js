@@ -1,10 +1,11 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation"; // Import the useRouter hook
 
 export default function AdminLogin() {
   const [form, setForm] = useState({ email: "", username: "", password: "" });
-  const [message, setMessage] = useState("");
+  const router = useRouter(); // Initialize router
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -13,21 +14,18 @@ export default function AdminLogin() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    try {
-      const res = await fetch("/api/auth/admin/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
-      });
+    const res = await fetch("/api/auth/admin/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(form),
+    });
 
-      const data = await res.json();
-      if (res.ok) {
-        setMessage("Admin login successful!");
-      } else {
-        setMessage(`Error: ${data.message}`);
-      }
-    } catch (error) {
-      setMessage("An error occurred. Please try again.");
+    const data = await res.json();
+    if (res.ok) {
+      alert("Admin login successful!");
+      router.push("/admin/dashboard"); // Redirect to dashboard
+    } else {
+      alert(`Error: ${data.message}`);
     }
   };
 
@@ -73,12 +71,6 @@ export default function AdminLogin() {
         >
           Login
         </button>
-
-        {message && (
-          <p className="mt-4 text-center text-red-500">
-            {message}
-          </p>
-        )}
       </form>
     </div>
   );
