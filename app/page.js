@@ -20,9 +20,11 @@ export default function HomePage() {
     fetchEvents();
   }, []);
 
-  const filteredEvents = events.filter((event) =>
-    event.name.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+ 
+  const filteredEvents = (events || []).filter((event) =>
+  event.name.toLowerCase().includes(searchQuery.toLowerCase())
+);
+
 
   return (
     <div className="min-h-screen bg-gray-100 text-black">
