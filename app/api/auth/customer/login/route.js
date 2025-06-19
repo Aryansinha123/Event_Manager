@@ -16,7 +16,7 @@ export async function POST(req) {
     const customer = await Customer.findOne(
       email ? { email } : { username }
     );
-    console.log("Customer found:", customer);
+    // console.log("Customer found:", customer);
 
     if (!customer) {
       return new Response(
