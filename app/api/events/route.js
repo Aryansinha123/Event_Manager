@@ -33,3 +33,21 @@ export async function POST(req) {
     return new Response(JSON.stringify({ message: "Failed to create event" }), { status: 500 });
   }
 }
+
+export default async function handler(req, res) {
+  await dbConnect();
+
+  const filters = req.query;
+  const query = {};
+
+  if (filters.date) {
+    // Add date filtering logic
+  }
+
+  if (filters.category) {
+    query.category = filters.category;
+  }
+
+  const events = await Event.find(query);
+  res.status(200).json(events);
+}
