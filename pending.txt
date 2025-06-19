@@ -1,0 +1,172 @@
+### **Detailed Review of Event Registration Project**
+
+#### **1. Project Setup**
+
+* **Done:**
+
+  * Initialized a Next.js project with the app directory structure.
+  * Integrated MongoDB for database management.
+  * Created models for `Admin`, `Customer`, and `Event` to structure data.
+  * Configured backend environment with `lib/mongodb.js` and authentication middleware.
+* **Pending:**
+
+  * Finalizing robust error handling in API and middleware.
+
+---
+
+#### **2. User Authentication**
+
+* **Admin Authentication:**
+
+  * **Done:**
+
+    * Admin login functionality implemented using JWT authentication.
+    * Dynamic admin name display in the Navbar based on the logged-in admin.
+    * Logout functionality implemented for the admin.
+  * **Pending:**
+
+    * Adding password encryption (e.g., bcrypt).
+    * Enhancing session security by managing token expiration and refresh.
+
+* **Customer Authentication:**
+
+  * **Done:**
+
+    * Customer login and registration API endpoints created.
+    * Form UI for customer authentication implemented.
+  * **Pending:**
+
+    * Persist customer sessions using JWT and local storage.
+    * Dynamic customer name display post-login.
+
+---
+
+#### **3. Admin Features**
+
+* **Admin Dashboard:**
+
+  * **Done:**
+
+    * Created a base dashboard page.
+    * Admin Navbar displays dynamically fetched admin name.
+    * Sidebar navigation for managing dashboard sections.
+    * Integrated dark mode toggle for the admin dashboard.
+  * **Pending:**
+
+    * Adding statistics like total events and registrations in the dashboard overview.
+
+* **Event Management:**
+
+  * **Done:**
+
+    * Event form designed with fields (Name, Description, Date, Time, Price, Place, Image).
+    * Event CRUD operations implemented via API.
+    * Responsive display of events in a grid layout.
+  * **Pending:**
+
+    * Adding file upload support for event images.
+    * Validating forms with inline error messages.
+
+---
+
+#### **4. Customer Features**
+
+* **Done:**
+
+  * Initial setup of the customer dashboard and Navbar.
+  * Basic event listing for customers to view.
+* **Pending:**
+
+  * Event registration functionality for customers.
+  * Display of registered events in the customer dashboard.
+
+---
+
+#### **5. Navigation**
+
+* **Done:**
+
+  * Admin Navbar created with:
+
+    * Admin name fetched dynamically.
+    * Logout button functionality.
+    * Fixed positioning to stay on top while scrolling.
+  * Admin Sidebar implemented with links to Dashboard, Events, and Settings.
+* **Pending:**
+
+  * Enhancing the sidebar for better UX (e.g., collapsible menu items).
+  * Adding a search bar in the Navbar for events.
+
+---
+
+#### **6. Dark Mode**
+
+* **Done:**
+
+  * Dark mode toggle implemented for admin layout.
+* **Pending:**
+
+  * Extending dark mode functionality to the customer layout.
+  * Saving user preference (light/dark mode) across sessions.
+
+---
+
+#### **7. Backend Development**
+
+* **Done:**
+
+  * APIs for:
+
+    * Admin login and fetching details of the logged-in admin.
+    * Event CRUD operations.
+  * Connected models with MongoDB.
+* **Pending:**
+
+  * API for customer event registration.
+  * Securing APIs with robust middleware for role-based access control.
+
+---
+
+#### **8. Frontend Development**
+
+* **Done:**
+
+  * Basic UI for forms, event grids, Navbar, and Sidebar.
+  * Responsive layout using Tailwind CSS.
+  * Integrated admin and event management flows.
+* **Pending:**
+
+  * Improving UI aesthetics with animations and transitions.
+  * Pagination for events listing.
+
+---
+
+#### **9. Testing**
+
+* **Done:**
+
+  * Tested API endpoints for admin login and event CRUD operations using Postman.
+* **Pending:**
+
+  * End-to-end testing of customer and admin workflows.
+
+---
+
+#### **10. Deployment**
+
+* **Pending:**
+
+  * Deploying the application on Vercel or Netlify.
+  * Configuring environment variables for production.
+
+---
+
+### **Key Next Steps**
+
+1. **Authentication:** Complete JWT management for both admin and customer.
+2. **Event Management:** Add image upload support and validate forms.
+3. **Customer Features:** Finalize event registration and registered events view.
+4. **Dark Mode:** Extend to the customer dashboard and save preferences.
+5. **Deployment:** Deploy the application and test in production.
+
+Let me know if you'd like to focus on or prioritize any specific area!

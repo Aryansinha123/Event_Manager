@@ -12,11 +12,11 @@ export default function AdminLayout({ children }) {
         <div className="w-64">
           <AdminSidebar />
         </div>
-        <div className="flex flex-col ">
+        <div className="flex flex-col w-[100vw]">
           <div className="w-full fixed ">
             <AdminNavbar />
           </div>
-          <main className="px-6 mt-[64px]">
+          <main className="px-10 mt-[64px]">
             {children}
           </main>
         </div>

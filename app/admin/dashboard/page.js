@@ -87,8 +87,16 @@ export default function AdminDashboard() {
 
   return (
     <div className="p-6">
+      {/* Heading */}
+      <h1 className="text-2xl font-bold mb-4">
+        {isEditing ? "Edit Event" : "Add New Event"}
+      </h1>
+
       {/* Event Form */}
-      <form onSubmit={handleSubmit} className="space-y-4 mb-8">
+      <form
+        onSubmit={handleSubmit}
+        className="space-y-4 bg-gray-100 p-6 rounded-lg shadow-md"
+      >
         <input
           type="text"
           name="name"
@@ -96,71 +104,79 @@ export default function AdminDashboard() {
           onChange={handleChange}
           placeholder="Event Name"
           required
-          className="w-full p-2 border rounded"
+          className="w-full p-3 border rounded focus:outline-none focus:ring focus:border-blue-300"
         />
-        <input
-          type="text"
+        <textarea
           name="description"
           value={form.description}
           onChange={handleChange}
           placeholder="Description"
           required
-          className="w-full p-2 border rounded"
+          className="w-full p-3 border rounded focus:outline-none focus:ring focus:border-blue-300"
+          rows="3"
         />
-        <input
-          type="date"
-          name="date"
-          value={form.date}
-          onChange={handleChange}
-          required
-          className="w-full p-2 border rounded"
-        />
-        <input
-          type="time"
-          name="time"
-          value={form.time}
-          onChange={handleChange}
-          required
-          className="w-full p-2 border rounded"
-        />
-        <input
-          type="number"
-          name="price"
-          value={form.price}
-          onChange={handleChange}
-          placeholder="Price"
-          required
-          className="w-full p-2 border rounded"
-        />
-        <input
-          type="text"
-          name="place"
-          value={form.place}
-          onChange={handleChange}
-          placeholder="Place"
-          required
-          className="w-full p-2 border rounded"
-        />
+        <div className="flex gap-4">
+          <input
+            type="date"
+            name="date"
+            value={form.date}
+            onChange={handleChange}
+            required
+            className="w-1/2 p-3 border rounded focus:outline-none focus:ring focus:border-blue-300"
+          />
+          <input
+            type="time"
+            name="time"
+            value={form.time}
+            onChange={handleChange}
+            required
+            className="w-1/2 p-3 border rounded focus:outline-none focus:ring focus:border-blue-300"
+          />
+        </div>
+        <div className="flex gap-4">
+          <input
+            type="number"
+            name="price"
+            value={form.price}
+            onChange={handleChange}
+            placeholder="Price"
+            required
+            className="w-1/2 p-3 border rounded focus:outline-none focus:ring focus:border-blue-300"
+          />
+          <input
+            type="text"
+            name="place"
+            value={form.place}
+            onChange={handleChange}
+            placeholder="Place"
+            required
+            className="w-1/2 p-3 border rounded focus:outline-none focus:ring focus:border-blue-300"
+          />
+        </div>
         <input
           type="text"
           name="image"
           value={form.image}
           onChange={handleChange}
           placeholder="Image URL"
-          className="w-full p-2 border rounded"
+          className="w-full p-3 border rounded focus:outline-none focus:ring focus:border-blue-300"
         />
         <button
           type="submit"
-          className="px-4 py-2 bg-blue-500 text-white rounded"
+          className="px-6 py-2 bg-blue-500 text-white rounded shadow hover:bg-blue-600"
         >
           {isEditing ? "Update Event" : "Add Event"}
         </button>
       </form>
 
       {/* Events */}
+      <h2 className="text-2xl font-semibold mt-10 mb-6">Event List</h2>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {events.map((event) => (
-          <div key={event._id} className="border rounded shadow-lg overflow-hidden">
+          <div
+            key={event._id}
+            className="border rounded-lg shadow-lg overflow-hidden"
+          >
             <img
               src={event.image || "https://via.placeholder.com/150"}
               alt={event.name}
@@ -184,13 +200,13 @@ export default function AdminDashboard() {
               <div className="flex justify-between mt-4">
                 <button
                   onClick={() => handleEdit(event)}
-                  className="px-4 py-2 bg-yellow-400 rounded"
+                  className="px-4 py-2 bg-yellow-400 rounded hover:bg-yellow-500"
                 >
                   Edit
                 </button>
                 <button
                   onClick={() => handleDelete(event._id)}
-                  className="px-4 py-2 bg-red-500 text-white rounded"
+                  className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
                 >
                   Delete
                 </button>

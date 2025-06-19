@@ -41,10 +41,10 @@ export default function Navbar() {
 
   return (
     <nav
-      className="flex items-center justify-between p-4 bg-gray-800 text-white sticky top-0 z-50 shadow-lg"
+      className="flex items-center justify-between p-4 bg-gray-800 text-white sticky top-0 z-50 px-4 w-[85vw]"
       style={{ height: "64px" }} // Explicitly set navbar height
     >
-      <h1 className="text-xl font-semibold">Admin Dashboard</h1>
+      <h1 className="text-xl font-semibold ml-9">Admin Dashboard</h1>
       <div className="flex items-center gap-4">
         <p className="font-medium">Hi, {adminUsername}</p>
         <button

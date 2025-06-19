@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation"; // Import useRouter
 
 export default function CustomerLogin() {
   const [form, setForm] = useState({
@@ -9,6 +10,7 @@ export default function CustomerLogin() {
     password: "",
   });
   const [message, setMessage] = useState("");
+  const router = useRouter(); // Initialize the router
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -17,14 +19,27 @@ export default function CustomerLogin() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const res = await fetch("/api/auth/customer/login", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(form),
-    });
+    try {
+      const res = await fetch("/api/auth/customer/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(form),
+      });
 
-    const data = await res.json();
-    setMessage(data.message);
+      const data = await res.json();
+
+      if (res.ok) {
+        // Save the token in localStorage if needed
+        localStorage.setItem("token", data.token);
+
+        // Redirect to the landing page
+        router.push("/");
+      } else {
+        setMessage(data.message || "Login failed. Please try again.");
+      }
+    } catch (error) {
+      setMessage("An error occurred. Please try again.");
+    }
   };
 
   return (
@@ -67,7 +82,7 @@ export default function CustomerLogin() {
         >
           Login
         </button>
-        {message && <p className="text-center mt-4">{message}</p>}
+        {message && <p className="text-center mt-4 text-red-500">{message}</p>}
 
         <p className="text-center mt-4">
           Don't have an account?{" "}

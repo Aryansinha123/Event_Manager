@@ -1,40 +1,79 @@
 "use client";
 
-import { useState } from "react";
-import Link from "next/link";
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 
 export default function Navbar() {
-    const [darkMode, setDarkMode] = useState(false);
+  const [user, setUser] = useState({ name: "Guest" }); // Default to Guest
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const router = useRouter();
 
-    const toggleTheme = () => setDarkMode(!darkMode);
+  useEffect(() => {
+    const fetchUserDetails = async () => {
+      const token = localStorage.getItem("token"); // Fetch token from localStorage
 
-    return (
-        <nav className={`p-4 ${darkMode ? "bg-gray-800 text-white" : "bg-white text-black"} shadow-md`}>
-            <div className="container mx-auto flex justify-between items-center">
-                <h1 className="text-2xl font-bold">Evently</h1>
-                <div className="flex items-center space-x-4">
-                    <Link href="/login">
-                        <button className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600">
-                           Login
-                        </button>
-                    </Link>
-                    <button
-                        onClick={toggleTheme}
-                        className="px-4 py-2 flex items-center justify-center gap-2 border border-gray-300 rounded-md bg-red-600 text-black dark:bg-gray-800 dark:text-white hover:bg-gray-300 dark:hover:bg-gray-700 shadow-md transition-all duration-300 transform hover:scale-105"
-                    >
-                        {darkMode ? (
-                            <>
-                                <span className="material-icons">wb_sunny</span> Light Mode
-                            </>
-                        ) : (
-                            <>
-                                <span className="material-icons">dark_mode</span> Dark Mode
-                            </>
-                        )}
-                    </button>
+      if (!token) {
+        setIsLoggedIn(false);
+        return;
+      }
 
-                </div>
-            </div>
-        </nav>
-    );
+      try {
+        const res = await fetch("/api/customer/details", {
+          headers: {
+            Authorization: `Bearer ${token}`, // Include token in the request
+          },
+        });
+
+        if (res.ok) {
+          const data = await res.json();
+          setUser({ name: data.username });
+          setIsLoggedIn(true);
+        } else {
+          setIsLoggedIn(false); // Invalid or expired token
+          localStorage.removeItem("token"); // Clear token if invalid
+        }
+      } catch (error) {
+        console.error("Error fetching user details:", error);
+        setIsLoggedIn(false);
+      }
+    };
+
+    fetchUserDetails();
+  }, []);
+
+  const handleLogout = () => {
+    localStorage.removeItem("token"); // Clear token
+    setUser({ name: "Guest" });
+    setIsLoggedIn(false);
+    router.push("/customer/login"); // Redirect to login page
+  };
+
+  return (
+    <nav className="flex items-center justify-between p-4 bg-gray-800 text-white">
+      {/* Logo */}
+      <div className="text-xl font-bold">
+        <a href="/">EventEase</a>
+      </div>
+
+      {/* User Details and Actions */}
+      <div className="flex items-center gap-4">
+        <p className="font-medium">Hi, {user.name}</p>
+        {isLoggedIn ? (
+          <button
+            onClick={handleLogout}
+            className="bg-red-500 px-4 py-2 rounded hover:bg-red-600"
+          >
+            Logout
+          </button>
+        ) : (
+          <button
+            onClick={() => router.push("/customer/login")}
+            className="bg-blue-500 px-4 py-2 rounded hover:bg-blue-600"
+          >
+            Login
+          </button>
+        )}
+      </div>
+    </nav>
+  );
 }
