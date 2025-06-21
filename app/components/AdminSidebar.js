@@ -9,10 +9,11 @@ export default function AdminSidebar() {
           <a href="#">Dashboard</a>
         </li>
         <li className="hover:bg-gray-700 p-2 rounded">
-          <a href="#">Manage Events</a>
+          <a href="/admin/dashboard">Manage Events</a>
         </li>
+        
         <li className="hover:bg-gray-700 p-2 rounded">
-          <a href="#">Settings</a>
+          <a href="/admin/bookings">Bookings</a>
         </li>
       </ul>
     </div>

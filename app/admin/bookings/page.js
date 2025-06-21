@@ -27,26 +27,31 @@ export default function AdminBookingsPage() {
           <p>No bookings available.</p>
         ) : (
           <table className="w-full border-collapse">
-            <thead>
-              <tr>
-                <th className="border p-2">Event ID</th>
-                <th className="border p-2">Name</th>
-                <th className="border p-2">Email</th>
-                <th className="border p-2">Phone</th>
-                <th className="border p-2">Additional Details</th>
-              </tr>
-            </thead>
-            <tbody>
-              {bookings.map((booking) => (
-                <tr key={booking._id}>
-                  <td className="border p-2">{booking.eventId}</td>
-                  <td className="border p-2">{booking.name}</td>
-                  <td className="border p-2">{booking.email}</td>
-                  <td className="border p-2">{booking.phone}</td>
-                  <td className="border p-2">{booking.additionalDetails || "N/A"}</td>
-                </tr>
-              ))}
-            </tbody>
+          <thead>
+  <tr>
+    <th className="border p-2">Event Name</th>
+    <th className="border p-2">Event Date</th>
+    <th className="border p-2">Event Time</th>
+    <th className="border p-2">Name</th>
+    <th className="border p-2">Email</th>
+    <th className="border p-2">Phone</th>
+    <th className="border p-2">Additional Details</th>
+  </tr>
+</thead>
+           <tbody>
+  {bookings.map((booking) => (
+    <tr key={booking._id}>
+      <td className="border p-2">{booking.eventId?.name || "N/A"}</td>
+      <td className="border p-2">{booking.eventId?.date || "N/A"}</td>
+      <td className="border p-2">{booking.eventId?.time || "N/A"}</td>
+      <td className="border p-2">{booking.name}</td>
+      <td className="border p-2">{booking.email}</td>
+      <td className="border p-2">{booking.phone}</td>
+      <td className="border p-2">{booking.additionalDetails || "N/A"}</td>
+    </tr>
+  ))}
+</tbody>
+
           </table>
         )}
       </div>
