@@ -52,6 +52,7 @@ export default function BookingPage({ params }) {
       if (response.ok) {
         // router.push("/thank-you"); // Redirect after success
         toast.success("Booking confirmed! 🎉");
+        router.push("/")
       } else {
         toast.error("Booking failed!")
         console.error("Failed to book the event");
