@@ -9,9 +9,10 @@ export default function MyBookings() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [userEmail, setUserEmail] = useState('');
-  const [userDetails, setUserDetails] = useState(null);
+  const [user, setUser] = useState({ name: "Guest", email: "", joinedDate: "" }); // Extended user state
+
   // const router = useRouter(); // Uncomment if using router for redirects
-const fetchUserDetails = async () => {
+  const fetchUserDetails = async () => {
     try {
       const token = localStorage.getItem("token");
       if (!token) {
@@ -30,7 +31,11 @@ const fetchUserDetails = async () => {
 
       const data = await response.json();
       setUserEmail(data.email); // Set the email dynamically
-      setUserDetails(data);
+      setUser({
+        name: data.username,
+        email: data.email || "",
+        joinedDate: data.createdAt || data.joinedDate || ""
+      });
     } catch (err) {
       console.error("Error fetching user details:", err);
       setError("Failed to fetch user details. Please log in.");
@@ -39,7 +44,7 @@ const fetchUserDetails = async () => {
   // 🔥 STEP 3: REPLACE THIS SECTION WITH YOUR AUTH LOGIC
   // useEffect(() => {
   //   // ===== CHOOSE ONE OF THE OPTIONS BELOW =====
-    
+
   //   // OPTION A: NextAuth.js (Uncomment the import above first)
   //   /*
   //   const { data: session } = useSession();
@@ -49,7 +54,7 @@ const fetchUserDetails = async () => {
   //     setError('Please log in to view your bookings');
   //   }
   //   */
-    
+
   //   // OPTION B: localStorage (Simple - currently active)
   //   const email = localStorage.getItem('userEmail');
   //   if (email) {
@@ -59,7 +64,7 @@ const fetchUserDetails = async () => {
   //     // Uncomment to redirect to login:
   //     // router.push('/login');
   //   }
-    
+
   //   // OPTION C: Custom API call to get current user
   //   /*
   //   const fetchCurrentUser = async () => {
@@ -79,7 +84,7 @@ const fetchUserDetails = async () => {
   //   };
   //   fetchCurrentUser();
   //   */
-    
+
   //   // OPTION D: JWT Token from localStorage
   //   /*
   //   const token = localStorage.getItem('authToken');
@@ -98,19 +103,19 @@ const fetchUserDetails = async () => {
   //     setError('Please log in to view your bookings');
   //   }
   //   */
-    
+
   // }, []);
-useEffect(() => {
+  useEffect(() => {
     fetchUserDetails();
   }, []);
   const fetchBookings = async () => {
     if (!userEmail) return;
-    
+
     try {
       setLoading(true);
       const response = await fetch(`/api/customer/bookings?email=${encodeURIComponent(userEmail)}`);
       const data = await response.json();
-      
+
       if (data.success) {
         setBookings(data.bookings);
         setError(''); // Clear any previous errors
@@ -192,12 +197,9 @@ useEffect(() => {
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900">My Bookings</h1>
           <p className="text-gray-600 mt-2">
-            View and manage your event bookings ({userEmail})
-            {userDetails && (
-              <span className="block text-sm text-gray-500">
-                Logged in as: {userDetails.name}
-              </span>
-            )}
+            View and manage your event bookings for
+            {user.name}
+            ({userEmail})
           </p>
         </div>
 
@@ -228,14 +230,14 @@ useEffect(() => {
                 {/* Event Image */}
                 {booking.eventId?.image && (
                   <div className="h-48 bg-gray-200 overflow-hidden">
-                    <img 
-                      src={booking.eventId.image} 
+                    <img
+                      src={booking.eventId.image}
                       alt={booking.eventId.name}
                       className="w-full h-full object-cover"
                     />
                   </div>
                 )}
-                
+
                 <div className="p-6">
                   {/* Status Badge */}
                   <div className="flex justify-between items-start mb-4">
