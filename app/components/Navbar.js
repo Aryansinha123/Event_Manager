@@ -130,7 +130,7 @@ export default function Navbar() {
                 <div className="py-2">
                   <button
                     onClick={() => {
-                      router.push("/my-bookings");
+                      router.push("/customer/my-bookings");
                       setIsDropdownOpen(false);
                     }}
                     className="flex items-center gap-3 w-full text-left px-4 py-3 hover:bg-gray-50 transition-colors"

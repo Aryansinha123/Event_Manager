@@ -1,4 +1,144 @@
 
+import { verifyToken } from "@/lib/authMiddleware";
+import Customer from "@/models/Customer";
+import Booking from "@/models/Booking";
+import Event from "@/models/Event"; // Add Event model for population
+import dbConnect from "@/lib/mongodb";
+
+export async function GET(req) {
+  try {
+    await dbConnect();
+    
+    // Extract token from Authorization header
+    const authHeader = req.headers.get("authorization");
+    if (!authHeader?.startsWith("Bearer ")) {
+      return new Response(
+        JSON.stringify({ message: "Invalid authorization format" }),
+        { status: 401, headers: { 'Content-Type': 'application/json' } }
+      );
+    }
+
+    const token = authHeader.split(" ")[1];
+    if (!token) {
+      return new Response(
+        JSON.stringify({ message: "Authorization token missing" }),
+        { status: 401, headers: { 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // Verify JWT token
+    const decoded = verifyToken(token);
+    if (!decoded || !decoded.id) {
+      return new Response(
+        JSON.stringify({ message: "Invalid or expired token" }),
+        { status: 401, headers: { 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // Get customer details
+    const customer = await Customer.findById(decoded.id).select('email name');
+    if (!customer) {
+      return new Response(
+        JSON.stringify({ message: "Customer not found" }),
+        { status: 404, headers: { 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // Fetch bookings with event details populated
+    const bookings = await Booking.find({ 
+      email: customer.email 
+    })
+    .populate({
+      path: 'eventId',
+      select: 'name date time venue description price category'
+    })
+    .sort({ createdAt: -1 })
+    .lean(); // Use lean() for better performance
+
+    // Format bookings for response
+    const formattedBookings = bookings.map((booking) => ({
+      _id: booking._id,
+      bookingDate: booking.createdAt,
+      numberOfTickets: booking.numberOfTickets,
+      totalAmount: booking.totalAmount || (booking.numberOfTickets * (booking.eventId?.price || 0)),
+      additionalDetails: booking.additionalDetails || null,
+      status: booking.status || 'confirmed',
+      event: booking.eventId ? {
+        _id: booking.eventId._id,
+        name: booking.eventId.name,
+        date: booking.eventId.date,
+        time: booking.eventId.time,
+        venue: booking.eventId.venue,
+        category: booking.eventId.category,
+        price: booking.eventId.price
+      } : {
+        name: "Event not found",
+        date: null,
+        time: null,
+        venue: null,
+        category: null,
+        price: 0
+      }
+    }));
+
+    // Calculate summary statistics
+    const totalTickets = bookings.reduce((sum, booking) => sum + (booking.numberOfTickets || 0), 0);
+    const totalSpent = formattedBookings.reduce((sum, booking) => sum + (booking.totalAmount || 0), 0);
+
+    return new Response(
+      JSON.stringify({ 
+        success: true,
+        bookings: formattedBookings,
+        summary: {
+          totalBookings: bookings.length,
+          totalTickets,
+          totalSpent,
+          customerEmail: customer.email,
+          customerName: customer.name
+        }
+      }),
+      {
+        status: 200,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      }
+    );
+
+  } catch (error) {
+    console.error("Error in /api/my-bookings:", error);
+    
+    // Handle specific error types
+    if (error.name === 'JsonWebTokenError') {
+      return new Response(
+        JSON.stringify({ message: "Invalid token format" }),
+        { status: 401, headers: { 'Content-Type': 'application/json' } }
+      );
+    }
+    
+    if (error.name === 'TokenExpiredError') {
+      return new Response(
+        JSON.stringify({ message: "Token has expired" }),
+        { status: 401, headers: { 'Content-Type': 'application/json' } }
+      );
+    }
+
+    return new Response(
+      JSON.stringify({ 
+        success: false,
+        message: "Failed to fetch bookings",
+        error: process.env.NODE_ENV === 'development' ? error.message : undefined
+      }),
+      { 
+        status: 500,
+        headers: { 'Content-Type': 'application/json' }
+      }
+    );
+  }
+}
+this is my api for my-booking page
+and this is my-booking page
+
 "use client";
 
 import { useEffect, useState } from "react";
@@ -6,13 +146,13 @@ import { useRouter } from "next/navigation";
 
 export default function MyBookingsPage() {
   const [bookings, setBookings] = useState([]);
+  const [summary, setSummary] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [user, setUser] = useState(null);
   const router = useRouter();
 
   useEffect(() => {
-    const fetchUserAndBookings = async () => {
+    const fetchBookings = async () => {
       const token = localStorage.getItem("token");
 
       if (!token) {
@@ -22,85 +162,39 @@ export default function MyBookingsPage() {
       }
 
       try {
-        // First fetch user details to get email
-        const userRes = await fetch("/api/customer/details", {
+        const response = await fetch("/api/my-bookings", {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         });
 
-        if (!userRes.ok) {
-          setError("Failed to fetch user details.");
-          setLoading(false);
-          return;
-        }
+        const data = await response.json();
 
-        const userData = await userRes.json();
-        setUser(userData);
-
-        // Then fetch bookings using the user's email
-        const bookingsRes = await fetch("/api/my-bookings", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-
-        if (!bookingsRes.ok) {
-          const data = await bookingsRes.json();
+        if (!response.ok) {
           setError(data.message || "Failed to fetch bookings.");
           setLoading(false);
           return;
         }
 
-        const bookingsData = await bookingsRes.json();
-        let bookingsArray = bookingsData.bookings || [];
-
-        // Fetch event details for each booking
-        const bookingsWithEventDetails = await Promise.all(
-          bookingsArray.map(async (booking) => {
-            try {
-              // Check if booking has eventId
-              if (booking.eventId) {
-                const response = await fetch(`/api/events/${booking.eventId}`);
-                const data = await response.json();
-                if (data.success && data.event) {
-                  return {
-                    ...booking,
-                    eventName: data.event.name || booking.eventName,
-                    eventImage: data.event.image || booking.eventImage,
-                    place: data.event.location || data.event.place || booking.place,
-                    date: data.event.date || booking.date,
-                    time: data.event.time || booking.time,
-                    description: data.event.description || booking.description,
-                    venue: data.event.venue || booking.venue,
-                    // Keep existing booking data as fallback
-                  };
-                }
-              }
-              // Return original booking if no eventId or fetch failed
-              return booking;
-            } catch (err) {
-              console.error(`Error fetching event details for booking ${booking._id}:`, err);
-              // Return original booking if fetch failed
-              return booking;
-            }
-          })
-        );
-
-        setBookings(bookingsWithEventDetails);
-
+        if (data.success) {
+          setBookings(data.bookings || []);
+          setSummary(data.summary || null);
+        } else {
+          setError("Failed to fetch bookings.");
+        }
       } catch (err) {
-        console.error("Error fetching data:", err);
+        console.error("Error fetching bookings:", err);
         setError("Failed to fetch your bookings. Please try again.");
       } finally {
         setLoading(false);
       }
     };
 
-    fetchUserAndBookings();
+    fetchBookings();
   }, []);
 
   const formatDate = (dateString) => {
+    if (!dateString) return "Date not available";
     try {
       return new Date(dateString).toLocaleDateString("en-US", {
         weekday: "short",
@@ -114,11 +208,16 @@ export default function MyBookingsPage() {
   };
 
   const formatTime = (timeString) => {
+    if (!timeString) return "Time not available";
     try {
-      return new Date(`2000-01-01T${timeString}`).toLocaleTimeString("en-US", {
-        hour: "2-digit",
-        minute: "2-digit",
-      });
+      // Handle different time formats
+      if (timeString.includes(':')) {
+        return new Date(`2000-01-01T${timeString}`).toLocaleTimeString("en-US", {
+          hour: "2-digit",
+          minute: "2-digit",
+        });
+      }
+      return timeString;
     } catch {
       return timeString;
     }
@@ -157,10 +256,20 @@ export default function MyBookingsPage() {
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-3xl font-bold text-gray-900">My Bookings</h1>
-              {user && (
-                <p className="text-gray-600 mt-1">
-                  Welcome back, <span className="font-medium">{user.username}</span>
-                </p>
+              {summary && (
+                <div className="mt-2 flex flex-wrap gap-4 text-sm text-gray-600">
+                  <span>Welcome back, <span className="font-medium">{summary.customerName}</span></span>
+                  <span>•</span>
+                  <span>{summary.totalBookings} booking{summary.totalBookings !== 1 ? "s" : ""}</span>
+                  <span>•</span>
+                  <span>{summary.totalTickets} ticket{summary.totalTickets !== 1 ? "s" : ""}</span>
+                  {summary.totalSpent > 0 && (
+                    <>
+                      <span>•</span>
+                      <span>₹{summary.totalSpent} total spent</span>
+                    </>
+                  )}
+                </div>
               )}
             </div>
             <button
@@ -213,12 +322,6 @@ export default function MyBookingsPage() {
               </div>
             ) : (
               <div className="space-y-4">
-                <div className="flex items-center justify-between mb-4">
-                  <p className="text-gray-600">
-                    {bookings.length} booking{bookings.length !== 1 ? "s" : ""} found
-                  </p>
-                </div>
-
                 {/* Desktop Table View */}
                 <div className="hidden lg:block bg-white rounded-lg shadow-sm overflow-hidden">
                   <table className="w-full">
@@ -231,56 +334,42 @@ export default function MyBookingsPage() {
                           Date & Time
                         </th>
                         <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Tickets
+                          Tickets & Amount
                         </th>
                         <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                           Status
                         </th>
                         <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Additional Details
+                          Booking Date
                         </th>
                       </tr>
                     </thead>
                     <tbody className="bg-white divide-y divide-gray-200">
-                      {bookings.map((booking, index) => (
-                        <tr key={booking._id || index} className="hover:bg-gray-50">
+                      {bookings.map((booking) => (
+                        <tr key={booking._id} className="hover:bg-gray-50">
                           <td className="px-6 py-4">
                             <div className="flex items-center space-x-3">
-                              {booking.eventImage ? (
-                                <img
-                                  src={booking.eventImage}
-                                  alt={booking.eventName || 'Event'}
-                                  className="w-12 h-12 rounded-lg object-cover flex-shrink-0"
-                                  onError={(e) => {
-                                    e.target.style.display = 'none';
-                                    e.target.nextElementSibling.style.display = 'flex';
-                                  }}
-                                />
-                              ) : null}
-                              <div
-                                className="w-12 h-12 bg-gray-200 rounded-lg flex items-center justify-center flex-shrink-0"
-                                style={{ display: booking.eventImage ? 'none' : 'flex' }}
-                              >
-                                <svg className="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                              <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center flex-shrink-0">
+                                <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                                 </svg>
                               </div>
                               <div>
                                 <div className="text-sm font-medium text-gray-900">
-                                  {booking.eventName || 'Event Name Not Available'}
+                                  {booking.event?.name || 'Event Name Not Available'}
                                 </div>
-                                {(booking.place || booking.venue) && (
-                                  <div className="text-sm text-gray-500">
-                                    <svg className="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                {booking.event?.venue && (
+                                  <div className="text-sm text-gray-500 flex items-center">
+                                    <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                                     </svg>
-                                    {booking.place || booking.venue}
+                                    {booking.event.venue}
                                   </div>
                                 )}
-                                {booking.description && (
-                                  <div className="text-xs text-gray-400 mt-1 truncate max-w-xs">
-                                    {booking.description}
+                                {booking.event?.category && (
+                                  <div className="text-xs text-gray-400 mt-1">
+                                    {booking.event.category}
                                   </div>
                                 )}
                               </div>
@@ -288,20 +377,20 @@ export default function MyBookingsPage() {
                           </td>
                           <td className="px-6 py-4">
                             <div className="text-sm text-gray-900 font-medium">
-                              {formatDate(booking.date)}
+                              {formatDate(booking.event?.date)}
                             </div>
-                            {booking.time && (
+                            {booking.event?.time && (
                               <div className="text-sm text-gray-500 flex items-center mt-1">
                                 <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                                 </svg>
-                                {formatTime(booking.time)}
+                                {formatTime(booking.event.time)}
                               </div>
                             )}
                           </td>
                           <td className="px-6 py-4">
                             <div className="text-sm font-medium text-gray-900">
-                              {booking.numberOfTickets || booking.tickets || 1} ticket{(booking.numberOfTickets || booking.tickets || 1) !== 1 ? "s" : ""}
+                              {booking.numberOfTickets || 1} ticket{(booking.numberOfTickets || 1) !== 1 ? "s" : ""}
                             </div>
                             {booking.totalAmount && (
                               <div className="text-sm text-gray-500">
@@ -314,7 +403,7 @@ export default function MyBookingsPage() {
                           </td>
                           <td className="px-6 py-4">
                             <div className="text-sm text-gray-900">
-                              {booking.additionalDetails || "No additional details"}
+                              {formatDate(booking.bookingDate)}
                             </div>
                           </td>
                         </tr>
@@ -325,41 +414,27 @@ export default function MyBookingsPage() {
 
                 {/* Mobile Card View */}
                 <div className="lg:hidden space-y-4">
-                  {bookings.map((booking, index) => (
-                    <div key={booking._id || index} className="bg-white rounded-lg shadow-sm p-4">
+                  {bookings.map((booking) => (
+                    <div key={booking._id} className="bg-white rounded-lg shadow-sm p-4">
                       <div className="flex items-start space-x-3 mb-3">
-                        {booking.eventImage ? (
-                          <img
-                            src={booking.eventImage}
-                            alt={booking.eventName || 'Event'}
-                            className="w-16 h-16 rounded-lg object-cover flex-shrink-0"
-                            onError={(e) => {
-                              e.target.style.display = 'none';
-                              e.target.nextElementSibling.style.display = 'flex';
-                            }}
-                          />
-                        ) : null}
-                        <div
-                          className="w-16 h-16 bg-gray-200 rounded-lg flex items-center justify-center flex-shrink-0"
-                          style={{ display: booking.eventImage ? 'none' : 'flex' }}
-                        >
-                          <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center flex-shrink-0">
+                          <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                           </svg>
                         </div>
                         <div className="flex-1">
                           <div className="flex justify-between items-start">
                             <div className="flex-1">
                               <h3 className="text-lg font-semibold text-gray-900">
-                                {booking.eventName || 'Event Name Not Available'}
+                                {booking.event?.name || 'Event Name Not Available'}
                               </h3>
-                              {(booking.place || booking.venue) && (
+                              {booking.event?.venue && (
                                 <div className="text-sm text-gray-500 flex items-center mt-1">
                                   <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                                   </svg>
-                                  {booking.place || booking.venue}
+                                  {booking.event.venue}
                                 </div>
                               )}
                             </div>
@@ -367,19 +442,19 @@ export default function MyBookingsPage() {
                           </div>
                         </div>
                       </div>
-
+                      
                       <div className="space-y-2 text-sm">
                         <div className="flex justify-between">
                           <span className="text-gray-500 flex items-center">
                             <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                             </svg>
-                            Date:
+                            Event Date:
                           </span>
-                          <span className="text-gray-900 font-medium">{formatDate(booking.date)}</span>
+                          <span className="text-gray-900 font-medium">{formatDate(booking.event?.date)}</span>
                         </div>
-
-                        {booking.time && (
+                        
+                        {booking.event?.time && (
                           <div className="flex justify-between">
                             <span className="text-gray-500 flex items-center">
                               <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -387,23 +462,10 @@ export default function MyBookingsPage() {
                               </svg>
                               Time:
                             </span>
-                            <span className="text-gray-900 font-medium">{formatTime(booking.time)}</span>
+                            <span className="text-gray-900 font-medium">{formatTime(booking.event.time)}</span>
                           </div>
                         )}
-
-                        {(booking.place || booking.venue) && (
-                          <div className="flex justify-between">
-                            <span className="text-gray-500 flex items-center">
-                              <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                              </svg>
-                              Venue:
-                            </span>
-                            <span className="text-gray-900">{booking.place || booking.venue}</span>
-                          </div>
-                        )}
-
+                        
                         <div className="flex justify-between">
                           <span className="text-gray-500 flex items-center">
                             <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -411,11 +473,9 @@ export default function MyBookingsPage() {
                             </svg>
                             Tickets:
                           </span>
-                          <span className="text-gray-900">
-                            {booking.numberOfTickets || booking.tickets || 1}
-                          </span>
+                          <span className="text-gray-900">{booking.numberOfTickets || 1}</span>
                         </div>
-
+                        
                         {booking.totalAmount && (
                           <div className="flex justify-between">
                             <span className="text-gray-500 flex items-center">
@@ -428,18 +488,28 @@ export default function MyBookingsPage() {
                           </div>
                         )}
 
-                        {booking.description && (
-                          <div className="pt-2 border-t">
-                            <span className="text-gray-500 flex items-start">
-                              <svg className="w-4 h-4 mr-1 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        <div className="flex justify-between">
+                          <span className="text-gray-500 flex items-center">
+                            <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                            </svg>
+                            Booked On:
+                          </span>
+                          <span className="text-gray-900">{formatDate(booking.bookingDate)}</span>
+                        </div>
+
+                        {booking.event?.category && (
+                          <div className="flex justify-between">
+                            <span className="text-gray-500 flex items-center">
+                              <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
                               </svg>
-                              Description:
+                              Category:
                             </span>
-                            <p className="text-gray-900 mt-1 ml-5">{booking.description}</p>
+                            <span className="text-gray-900">{booking.event.category}</span>
                           </div>
                         )}
-
+                        
                         {booking.additionalDetails && (
                           <div className="pt-2 border-t">
                             <span className="text-gray-500 flex items-start">
@@ -463,3 +533,4 @@ export default function MyBookingsPage() {
     </div>
   );
 }
+it should display the event booked by user correctly make it work tell steps with file name
