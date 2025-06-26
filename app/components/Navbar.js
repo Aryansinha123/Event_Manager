@@ -1,3 +1,4 @@
+
 // "use client";
 
 // import { useState, useEffect } from "react";
@@ -86,7 +87,7 @@
 //   };
 
 //   return (
-//     <nav className={`sticky top-0 z-50 transition-all duration-300 ${
+//     <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300  ${
 //       isScrolled 
 //         ? 'bg-white/90 backdrop-blur-md shadow-lg border-b border-gray-200/50' 
 //         : 'bg-gradient-to-r from-slate-900 via-purple-900 to-slate-900'
@@ -266,12 +267,14 @@
 //         </div>
 //       </div>
 
+//       {/* Mobile menu overlay - you can add mobile menu here if needed */}
+//       {/* Removed the overlay that was causing the blur effect */}
 //     </nav>
 //   );
 // }
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 
 export default function Navbar() {
@@ -280,6 +283,7 @@ export default function Navbar() {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const router = useRouter();
+  const dropdownRef = useRef(null);
 
   useEffect(() => {
     const fetchUserDetails = async () => {
@@ -325,6 +329,20 @@ export default function Navbar() {
     };
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  // Handle click outside to close dropdown
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsDropdownOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
   }, []);
 
   const handleLogout = () => {
@@ -405,7 +423,7 @@ export default function Navbar() {
           </div>
 
           {/* User Menu */}
-          <div className="relative">
+          <div className="relative" ref={dropdownRef}>
             <button
               className={`group flex items-center gap-3 px-4 py-2 rounded-xl transition-all duration-200 hover:scale-105 ${
                 isScrolled

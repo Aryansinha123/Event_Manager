@@ -181,7 +181,8 @@ export default function BookingPage({ params }) {
     numberOfTickets: 1, // Default to 1 ticket
     additionalDetails: "",
   });
-
+  //delay function
+  const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
   // Fetch event details
   useEffect(() => {
     const fetchEventDetails = async () => {
@@ -218,6 +219,7 @@ export default function BookingPage({ params }) {
       if (response.ok) {
         // router.push("/thank-you"); // Redirect after success
         toast.success("Booking confirmed! 🎉");
+        await delay(5000); // Delay for 1 second before redirecting
         router.push("/")
       } else {
         toast.error("Booking failed!")
