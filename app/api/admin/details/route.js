@@ -4,11 +4,12 @@ import Admin from "@/models/Admin"; // Mongoose Admin model
 export async function GET(req) {
   try {
     await dbConnect();
+    const { username, email, password } = await req.json();
 
     // Replace this logic with actual session-based authentication
-    const admin = await Admin.findOne(); // 
-    // Fetch the first admin as a placeholder
-
+   const admin = await Admin.findOne({
+      $or: [{ username }, { email }],
+    });
     if (!admin) {
       return new Response(JSON.stringify({ error: "Admin not found" }), {
         status: 404,

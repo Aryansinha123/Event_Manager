@@ -220,9 +220,8 @@ export default function HomePage() {
 
       <div className="flex relative z-10 mt-[65px]">
         {/* Enhanced Filter Sidebar */}
-        <div className={`filter-sidebar fixed lg:relative inset-y-0 left-0 z-50 w-80 bg-white/10 backdrop-blur-xl shadow-2xl border-r border-white/20 p-4 lg:p-6 h-screen overflow-y-auto transform transition-transform duration-300 ease-in-out ${
-          showFilters ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
-        } lg:block mt-0 lg:mt-0`}>
+        <div className={`filter-sidebar fixed lg:relative inset-y-0 left-0 z-50 w-80 bg-white/10 backdrop-blur-xl shadow-2xl border-r border-white/20 p-4 lg:p-6 h-screen overflow-y-auto transform transition-transform duration-300 ease-in-out ${showFilters ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
+          } lg:block mt-0 lg:mt-0`}>
           <div className="flex justify-between items-center mb-6 lg:mb-8">
             <h2 className="text-xl lg:text-2xl font-bold text-white flex items-center gap-2 lg:gap-3">
               <div className="w-2 lg:w-3 h-6 lg:h-8 bg-gradient-to-b from-cyan-400 to-blue-500 rounded-full shadow-lg"></div>
@@ -251,7 +250,7 @@ export default function HomePage() {
 
           {/* Search Filter */}
           <div className="mb-4 lg:mb-6">
-            <label className="block text-sm font-semibold text-cyan-300 mb-2 lg:mb-3 flex items-center gap-2">
+            <label className="text-sm font-semibold text-cyan-300 mb-2 lg:mb-3 flex items-center gap-2">
               <span className="text-base lg:text-lg">🔍</span>
               Search Events
             </label>
@@ -301,7 +300,7 @@ export default function HomePage() {
                   type="number"
                   placeholder="Min"
                   value={priceRange.min}
-                  onChange={(e) => setPriceRange({...priceRange, min: e.target.value})}
+                  onChange={(e) => setPriceRange({ ...priceRange, min: e.target.value })}
                   className="w-full border-2 border-white/20 bg-white/10 backdrop-blur-sm rounded-xl px-3 py-2 text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-cyan-400 focus:border-transparent transition-all duration-200 text-sm lg:text-base"
                 />
               </div>
@@ -311,7 +310,7 @@ export default function HomePage() {
                   type="number"
                   placeholder="Max"
                   value={priceRange.max}
-                  onChange={(e) => setPriceRange({...priceRange, max: e.target.value})}
+                  onChange={(e) => setPriceRange({ ...priceRange, max: e.target.value })}
                   className="w-full border-2 border-white/20 bg-white/10 backdrop-blur-sm rounded-xl px-3 py-2 text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-cyan-400 focus:border-transparent transition-all duration-200 text-sm lg:text-base"
                 />
               </div>
@@ -350,7 +349,7 @@ export default function HomePage() {
                 <input
                   type="date"
                   value={selectedDateRange.start}
-                  onChange={(e) => setSelectedDateRange({...selectedDateRange, start: e.target.value})}
+                  onChange={(e) => setSelectedDateRange({ ...selectedDateRange, start: e.target.value })}
                   className="w-full border-2 border-white/20 bg-white/10 backdrop-blur-sm rounded-xl px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-cyan-400 focus:border-transparent transition-all duration-200 text-sm lg:text-base"
                 />
               </div>
@@ -359,7 +358,7 @@ export default function HomePage() {
                 <input
                   type="date"
                   value={selectedDateRange.end}
-                  onChange={(e) => setSelectedDateRange({...selectedDateRange, end: e.target.value})}
+                  onChange={(e) => setSelectedDateRange({ ...selectedDateRange, end: e.target.value })}
                   className="w-full border-2 border-white/20 bg-white/10 backdrop-blur-sm rounded-xl px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-cyan-400 focus:border-transparent transition-all duration-200 text-sm lg:text-base"
                 />
               </div>
@@ -389,10 +388,10 @@ export default function HomePage() {
                 Discover Amazing Events
               </h1>
               <p className="text-base lg:text-xl text-white/80 leading-relaxed mb-6 lg:mb-0">
-                From tech conferences to music festivals, find your next unforgettable experience. 
+                From tech conferences to music festivals, find your next unforgettable experience.
                 Join thousands of attendees at premium events around the world.
               </p>
-              <div className="hidden lg:flex items-center gap-8 mt-8">
+              <div className=" flex items-center gap-8 mt-8">
                 <div className="flex items-center gap-2 text-cyan-300">
                   <span className="text-2xl">🎪</span>
                   <span className="font-semibold">Premium Events</span>
@@ -433,13 +432,13 @@ export default function HomePage() {
                   <p className="text-white/70 text-sm lg:text-base">Handpicked experiences just for you</p>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 lg:gap-8">
+                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 lg:gap-8  w-[90%] m-auto md:w-full">
                   {filteredEvents.map((event, index) => (
                     <div
                       key={event._id}
-                      className="group relative bg-white/10 backdrop-blur-xl rounded-2xl lg:rounded-3xl shadow-2xl hover:shadow-cyan-500/20 transition-all duration-500 overflow-hidden border border-white/20 hover:border-cyan-400/50 transform hover:-translate-y-2 lg:hover:-translate-y-4 hover:scale-105"
+                      className="group relative bg-white/10 backdrop-blur-xl rounded-2xl lg:rounded-3xl shadow-2xl hover:shadow-cyan-500/20 transition-all duration-500 overflow-hidden border borde2r-white/20 hover:border-cyan-400/50 transform hover:-translate-y-2 lg:hover:-translate-y-4 hover:scale-105 my-3"
                       style={{
-                        animationDelay: `${index * 100}ms`
+                        animationDelay: `${index * 10}ms`
                       }}
                     >
                       {/* Premium Badge */}
@@ -458,7 +457,7 @@ export default function HomePage() {
                           <span className="ml-1 text-sm lg:text-base">&#8377;{event.price}</span>
                         </div>
                         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
-                        
+
                         {/* Floating Action Button */}
                         <div className="absolute bottom-3 lg:bottom-4 right-3 lg:right-4 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-y-4 group-hover:translate-y-0">
                           <button
@@ -471,7 +470,7 @@ export default function HomePage() {
                           </button>
                         </div>
                       </div>
-                      
+
                       <div className="p-4 lg:p-6">
                         <h3 className="text-lg lg:text-xl font-bold mb-2 lg:mb-3 text-white group-hover:text-cyan-300 transition-colors duration-300 line-clamp-1">
                           {event.name}
@@ -479,16 +478,16 @@ export default function HomePage() {
                         <p className="text-white/70 mb-4 lg:mb-6 line-clamp-2 leading-relaxed text-sm">
                           {event.description}
                         </p>
-                        
+
                         <div className="space-y-2 lg:space-y-3 mb-4 lg:mb-6">
                           <div className="flex items-center text-xs lg:text-sm text-white/80 bg-white/5 rounded-lg p-2">
                             <span className="w-6 h-6 lg:w-8 lg:h-8 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-lg flex items-center justify-center mr-2 lg:mr-3 text-white text-xs lg:text-sm">📅</span>
                             <div>
-                              <span className="font-medium text-white text-xs lg:text-sm">{new Date(event.date).toLocaleDateString('en-US', { 
-                                weekday: 'short', 
-                                year: 'numeric', 
-                                month: 'short', 
-                                day: 'numeric' 
+                              <span className="font-medium text-white text-xs lg:text-sm">{new Date(event.date).toLocaleDateString('en-US', {
+                                weekday: 'short',
+                                year: 'numeric',
+                                month: 'short',
+                                day: 'numeric'
                               })}</span>
                             </div>
                           </div>
@@ -501,7 +500,7 @@ export default function HomePage() {
                             <span className="font-medium text-white text-xs lg:text-sm">{event.place}</span>
                           </div>
                         </div>
-                        
+
                         <button
                           onClick={() => handleBookNow(event._id)}
                           className="w-full bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 text-white font-bold py-3 lg:py-4 px-4 lg:px-6 rounded-xl lg:rounded-2xl transition-all duration-300 shadow-xl hover:shadow-cyan-500/30 transform hover:-translate-y-1 relative overflow-hidden group text-sm lg:text-base"

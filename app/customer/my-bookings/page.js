@@ -1,6 +1,6 @@
 "use client"
 import { useState, useEffect } from 'react';
-import { Calendar, MapPin, Clock, Users, Mail, Phone, Ticket, CheckCircle, XCircle, AlertCircle, Star, Sparkles } from 'lucide-react';
+import { Calendar, MapPin, Clock, Users, Mail, Phone, Ticket, CheckCircle, XCircle, AlertCircle, Star,User, Sparkles } from 'lucide-react';
 
 export default function MyBookings() {
   const [bookings, setBookings] = useState([]);
@@ -38,70 +38,6 @@ export default function MyBookings() {
       setError("Failed to fetch user details. Please log in.");
     }
   };
-  // 🔥 STEP 3: REPLACE THIS SECTION WITH YOUR AUTH LOGIC
-  // useEffect(() => {
-  //   // ===== CHOOSE ONE OF THE OPTIONS BELOW =====
-
-  //   // OPTION A: NextAuth.js (Uncomment the import above first)
-  //   /*
-  //   const { data: session } = useSession();
-  //   if (session?.user?.email) {
-  //     setUserEmail(session.user.email);
-  //   } else {
-  //     setError('Please log in to view your bookings');
-  //   }
-  //   */
-
-  //   // OPTION B: localStorage (Simple - currently active)
-  //   const email = localStorage.getItem('userEmail');
-  //   if (email) {
-  //     setUserEmail(email);
-  //   } else {
-  //     setError('Please log in to view your bookings');
-  //     // Uncomment to redirect to login:
-  //     // router.push('/login');
-  //   }
-
-  //   // OPTION C: Custom API call to get current user
-  //   /*
-  //   const fetchCurrentUser = async () => {
-  //     try {
-  //       const response = await fetch('/api/auth/me', {
-  //         credentials: 'include'
-  //       });
-  //       if (response.ok) {
-  //         const userData = await response.json();
-  //         setUserEmail(userData.email);
-  //       } else {
-  //         setError('Please log in to view your bookings');
-  //       }
-  //     } catch (err) {
-  //       setError('Failed to authenticate user');
-  //     }
-  //   };
-  //   fetchCurrentUser();
-  //   */
-
-  //   // OPTION D: JWT Token from localStorage
-  //   /*
-  //   const token = localStorage.getItem('authToken');
-  //   if (token) {
-  //     try {
-  //       const payload = JSON.parse(atob(token.split('.')[1])); // Decode JWT
-  //       if (payload.email && payload.exp > Date.now() / 1000) {
-  //         setUserEmail(payload.email);
-  //       } else {
-  //         setError('Session expired. Please log in again.');
-  //       }
-  //     } catch (err) {
-  //       setError('Invalid session. Please log in again.');
-  //     }
-  //   } else {
-  //     setError('Please log in to view your bookings');
-  //   }
-  //   */
-
-  // }, []);
   useEffect(() => {
     fetchUserDetails();
   }, []);
@@ -328,7 +264,11 @@ export default function MyBookings() {
 
                       {/* Contact Info */}
                       <div className="pt-4 border-t border-gray-100 space-y-2">
-                          <span className='text-sm font-medium ml-8  text-gray-600'>{booking.name}</span>
+                                        
+                        <div className="flex items-center text-gray-600">
+                          <User className="w-4 h-4 mr-3 text-gray-400" />
+                          <span className="text-sm font-medium">{booking.name}</span>
+                        </div>
                         <div className="flex items-center text-gray-600">
                           <Mail className="w-4 h-4 mr-3 text-gray-400" />
                           <span className="text-sm font-medium">{booking.email}</span>
@@ -348,7 +288,7 @@ export default function MyBookings() {
                             <div className="flex justify-between items-center">
                               <span className="text-gray-600 font-medium">Total Amount:</span>
                               <span className="text-2xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
-                                ${(booking.eventId.price * booking.numberOfTickets).toFixed(2)}
+                                &#8377;{(booking.eventId.price * booking.numberOfTickets).toFixed(2)}
                               </span>
                             </div>
                           </div>
@@ -360,8 +300,8 @@ export default function MyBookings() {
                     <div className="mt-4 pt-4 border-t border-gray-100">
                       <p className="text-xs text-gray-500 font-medium">
                         Booked on {new Date(booking.createdAt).toLocaleDateString('en-US', {
-                          month: 'long',
                           day: 'numeric',
+                          month: 'long',
                           year: 'numeric'
                         })}
                       </p>

@@ -48,7 +48,7 @@ export default function BookingPage({ params }) {
 
         delay(12000)
 
-        router.push("/customer/login");kw
+        router.push("/customer/login");
       } else {
         // Optional: Validate the token via API call
         try {
@@ -88,7 +88,6 @@ export default function BookingPage({ params }) {
       });
 
       if (response.ok) {
-        // router.push("/thank-you"); // Redirect after success
         toast.success("Booking confirmed! 🎉");
         await delay(5000); // Delay for 1 second before redirecting
         router.push("/")

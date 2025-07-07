@@ -1,223 +1,3 @@
-// "use client";
-
-// import { useState, useEffect } from "react";
-
-// export default function AdminDashboard() {
-//   const [events, setEvents] = useState([]);
-//   const [form, setForm] = useState({
-//     name: "",
-//     description: "",
-//     date: "",
-//     time: "",
-//     price: "",
-//     place: "",
-//     image: "",
-//   });
-//   const [isEditing, setIsEditing] = useState(false);
-//   const [editId, setEditId] = useState("");
-
-//   // Fetch Events
-//   const fetchEvents = async () => {
-//     try {
-//       const res = await fetch("/api/events");
-//       const data = await res.json();
-//       setEvents(data);
-//     } catch (error) {
-//       console.error("Failed to fetch events:", error);
-//     }
-//   };
-
-//   useEffect(() => {
-//     fetchEvents();
-//   }, []);
-
-//   // Handle Form Change
-//   const handleChange = (e) => {
-//     setForm({ ...form, [e.target.name]: e.target.value });
-//   };
-
-//   // Handle Submit (Add/Edit Event)
-//   const handleSubmit = async (e) => {
-//     e.preventDefault();
-//     const method = isEditing ? "PUT" : "POST";
-//     const url = isEditing ? `/api/events/${editId}` : "/api/events";
-
-//     try {
-//       const res = await fetch(url, {
-//         method,
-//         headers: { "Content-Type": "application/json" },
-//         body: JSON.stringify(form),
-//       });
-//       if (!res.ok) throw new Error("Failed to save event");
-
-//       fetchEvents();
-//       setForm({
-//         name: "",
-//         description: "",
-//         date: "",
-//         time: "",
-//         price: "",
-//         place: "",
-//         image: "",
-//       });
-//       setIsEditing(false);
-//     } catch (err) {
-//       console.error("Error saving event:", err);
-//     }
-//   };
-
-//   // Handle Edit
-//   const handleEdit = (event) => {
-//     setForm(event);
-//     setEditId(event._id);
-//     setIsEditing(true);
-//   };
-
-//   // Handle Delete
-//   const handleDelete = async (id) => {
-//     try {
-//       const res = await fetch(`/api/events/${id}`, { method: "DELETE" });
-//       if (!res.ok) throw new Error("Failed to delete event");
-
-//       fetchEvents();
-//     } catch (error) {
-//       console.error("Error deleting event:", error);
-//     }
-//   };
-
-//   return (
-//     <div className="p-6">
-//       {/* Heading */}
-//       <h1 className="text-2xl font-bold mb-4">
-//         {isEditing ? "Edit Event" : "Add New Event"}
-//       </h1>
-
-//       {/* Event Form */}
-//       <form
-//         onSubmit={handleSubmit}
-//         className="space-y-4 bg-gray-100 p-6 rounded-lg shadow-md"
-//       >
-//         <input
-//           type="text"
-//           name="name"
-//           value={form.name}
-//           onChange={handleChange}
-//           placeholder="Event Name"
-//           required
-//           className="w-full p-3 border rounded focus:outline-none focus:ring focus:border-blue-300"
-//         />
-//         <textarea
-//           name="description"
-//           value={form.description}
-//           onChange={handleChange}
-//           placeholder="Description"
-//           required
-//           className="w-full p-3 border rounded focus:outline-none focus:ring focus:border-blue-300"
-//           rows="3"
-//         />
-//         <div className="flex gap-4">
-//           <input
-//             type="date"
-//             name="date"
-//             value={form.date}
-//             onChange={handleChange}
-//             required
-//             className="w-1/2 p-3 border rounded focus:outline-none focus:ring focus:border-blue-300"
-//           />
-//           <input
-//             type="time"
-//             name="time"
-//             value={form.time}
-//             onChange={handleChange}
-//             required
-//             className="w-1/2 p-3 border rounded focus:outline-none focus:ring focus:border-blue-300"
-//           />
-//         </div>
-//         <div className="flex gap-4">
-//           <input
-//             type="number"
-//             name="price"
-//             value={form.price}
-//             onChange={handleChange}
-//             placeholder="Price"
-//             required
-//             className="w-1/2 p-3 border rounded focus:outline-none focus:ring focus:border-blue-300"
-//           />
-//           <input
-//             type="text"
-//             name="place"
-//             value={form.place}
-//             onChange={handleChange}
-//             placeholder="Place"
-//             required
-//             className="w-1/2 p-3 border rounded focus:outline-none focus:ring focus:border-blue-300"
-//           />
-//         </div>
-//         <input
-//           type="text"
-//           name="image"
-//           value={form.image}
-//           onChange={handleChange}
-//           placeholder="Image URL"
-//           className="w-full p-3 border rounded focus:outline-none focus:ring focus:border-blue-300"
-//         />
-//         <button
-//           type="submit"
-//           className="px-6 py-2 bg-blue-500 text-white rounded shadow hover:bg-blue-600"
-//         >
-//           {isEditing ? "Update Event" : "Add Event"}
-//         </button>
-//       </form>
-
-//       {/* Events */}
-//       <h2 className="text-2xl font-semibold mt-10 mb-6">Event List</h2>
-//       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-//         {events.map((event) => (
-//           <div
-//             key={event._id}
-//             className="border rounded-lg shadow-lg overflow-hidden"
-//           >
-//             <img
-//               src={event.image || "https://via.placeholder.com/150"}
-//               alt={event.name}
-//               className="w-full h-48 object-cover"
-//             />
-//             <div className="p-4">
-//               <h2 className="text-lg font-bold">{event.name}</h2>
-//               <p>{event.description}</p>
-//               <p>
-//                 <strong>Date:</strong> {event.date}
-//               </p>
-//               <p>
-//                 <strong>Time:</strong> {event.time}
-//               </p>
-//               <p>
-//                 <strong>Price:</strong> ${event.price}
-//               </p>
-//               <p>
-//                 <strong>Place:</strong> {event.place}
-//               </p>
-//               <div className="flex justify-between mt-4">
-//                 <button
-//                   onClick={() => handleEdit(event)}
-//                   className="px-4 py-2 bg-yellow-400 rounded hover:bg-yellow-500"
-//                 >
-//                   Edit
-//                 </button>
-//                 <button
-//                   onClick={() => handleDelete(event._id)}
-//                   className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
-//                 >
-//                   Delete
-//                 </button>
-//               </div>
-//             </div>
-//           </div>
-//         ))}
-//       </div>
-//     </div>
-//   );
-// }
 "use client";
 
 import { useState, useEffect } from "react";
@@ -297,7 +77,7 @@ export default function AdminDashboard() {
     setEditId(event._id);
     setIsEditing(true);
     // Scroll to form
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    window.scrollTo({ top: 160, behavior: 'smooth' });
   };
 
   // Handle Cancel Edit
@@ -333,7 +113,7 @@ export default function AdminDashboard() {
       {/* Header */}
       <div className="bg-white shadow-sm border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between ml-4 md:ml-2">
             <div>
               <h1 className="text-3xl font-bold text-gray-900">Event Management</h1>
               <p className="text-gray-600 mt-1">Create and manage your events</p>
@@ -374,7 +154,8 @@ export default function AdminDashboard() {
             {/* Event Name */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Event Name *
+                Event Name
+                <span className="text-red-500"> *</span>
               </label>
               <input
                 type="text"
@@ -389,8 +170,9 @@ export default function AdminDashboard() {
 
             {/* Description */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Description *
+              <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-2">
+                Description                 <span className="text-red-500"> *</span>
+
               </label>
               <textarea
                 name="description"
@@ -407,7 +189,8 @@ export default function AdminDashboard() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Date *
+                  Date                 <span className="text-red-500"> *</span>
+
                 </label>
                 <input
                   type="date"
@@ -420,7 +203,8 @@ export default function AdminDashboard() {
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Time *
+                  Time                <span className="text-red-500"> *</span>
+
                 </label>
                 <input
                   type="time"
@@ -437,7 +221,8 @@ export default function AdminDashboard() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Price (₹) *
+                  Price (₹) 
+                <span className="text-red-500"> *</span>
                 </label>
                 <input
                   type="number"
@@ -452,7 +237,8 @@ export default function AdminDashboard() {
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Venue *
+                  Venue 
+                <span className="text-red-500"> *</span>
                 </label>
                 <input
                   type="text"
@@ -558,11 +344,11 @@ export default function AdminDashboard() {
                       <span className="text-sm font-semibold text-gray-900">₹{event.price}</span>
                     </div>
                   </div>
-                  
+
                   <div className="p-6">
                     <h3 className="text-xl font-bold text-gray-900 mb-2 line-clamp-2">{event.name}</h3>
                     <p className="text-gray-600 mb-4 line-clamp-3">{event.description}</p>
-                    
+
                     <div className="space-y-2 mb-6">
                       <div className="flex items-center text-sm text-gray-500">
                         <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -584,7 +370,7 @@ export default function AdminDashboard() {
                         {event.place}
                       </div>
                     </div>
-                    
+
                     <div className="flex space-x-3">
                       <button
                         onClick={() => handleEdit(event)}
