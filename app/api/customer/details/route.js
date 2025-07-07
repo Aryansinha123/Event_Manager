@@ -1,4 +1,3 @@
-
 import { verifyToken } from "@/lib/authMiddleware";
 import Customer from "@/models/Customer";
 import dbConnect from "@/lib/mongodb";
