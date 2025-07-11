@@ -23,6 +23,9 @@ export default function AdminLogin() {
     });
 
     const data = await res.json();
+    console.log(data);
+    console.log(data.username);
+    
     if (res.ok) {
       alert("Admin login successful!");
       router.push("/admin/dashboard"); // Redirect to dashboard

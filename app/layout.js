@@ -54,7 +54,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata = {
-  title: "Evently - Explore Amazing Events",
+  title: "EventEase - Explore Amazing Events",
   description: "Discover and register for exciting events near you.",
   icons: {
     icon: [
