@@ -414,7 +414,7 @@ export default function HomePage() {
                 <div className="text-6xl lg:text-8xl mb-4 lg:mb-6 animate-bounce">🔍</div>
                 <h3 className="text-white text-xl lg:text-2xl font-bold mb-3 lg:mb-4">No Events Found</h3>
                 <p className="text-white/70 text-base lg:text-lg mb-6 lg:mb-8 max-w-md mx-auto px-4">
-                  We couldn't find any events matching your search criteria. Try adjusting your filters or search terms.
+                  We couldn&apos;t find any events matching your search criteria. Try adjusting your filters or search terms.
                 </p>
                 <button
                   onClick={clearFilters}
