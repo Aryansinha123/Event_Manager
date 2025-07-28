@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
+import { Link } from "lucide-react";
 
 export default function Navbar() {
   const [user, setUser] = useState({ name: "Guest", email: "", joinedDate: "" });
@@ -105,17 +106,17 @@ export default function Navbar() {
         ? 'bg-white/90 backdrop-blur-md shadow-lg border-b border-gray-200/50'
         : 'bg-gradient-to-r from-slate-900 via-purple-900 to-slate-900'
       }`}>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px- lg:px-0 py-0">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <div className="flex-shrink-0">
-            <a
+            <Link
               href="/"
               className={`text-2xl font-bold bg-gradient-to-r from-purple-400 via-pink-400 to-red-400 bg-clip-text text-transparent hover:scale-105 transition-transform duration-200 ${isScrolled ? 'from-purple-600 via-pink-600 to-red-600' : ''
                 }`}
             >
               ✨ EventEase
-            </a>
+            </Link>
           </div>
 
           {/* Navigation Links */}
@@ -130,7 +131,7 @@ export default function Navbar() {
                 <a
                   key={link.href}
                   href={link.href}
-                  className={`group relative px-3 py-2 text-lg font-medium transition-all duration-200 hover:scale-105 ${isScrolled
+                  className={`group relative px-3 py-2 text-sm font-medium transition-all duration-200 hover:scale-105 ${isScrolled
                       ? 'text-gray-700 hover:text-purple-600'
                       : 'text-gray-300 hover:text-white'
                     }`}

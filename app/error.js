@@ -97,7 +97,7 @@ function Error({ statusCode, hasGetInitialPropsRun, err }) {
           {isServerError && (
             <div className="bg-black/20 backdrop-blur-sm rounded-lg p-4 mb-6 border border-orange-500/20">
               <p className="text-orange-200 text-sm">
-                <strong>Don't worry!</strong> This is likely a temporary issue. 
+                <strong>Don&apos;t worry!</strong> This is likely a temporary issue. 
                 Try refreshing the page or come back in a few minutes.
               </p>
             </div>

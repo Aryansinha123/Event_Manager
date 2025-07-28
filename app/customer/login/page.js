@@ -162,7 +162,7 @@ export default function CustomerLogin() {
           {/* Divider */}
           <div className="mt-8 pt-6 border-t border-gray-200">
             <p className="text-center text-gray-600">
-              Don't have an account?{" "}
+              Don&apos;t have an account?{" "}
               <button
                 onClick={() => router.push("/customer/register")}
                 className="text-blue-600 hover:text-blue-800 font-semibold transition-colors duration-200 hover:underline"

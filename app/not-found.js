@@ -26,8 +26,8 @@ export default function Custom404() {
           </h2>
           
           <p className="text-lg text-gray-300 mb-8 leading-relaxed">
-            It looks like the event you're looking for has either ended, been moved, 
-            or the page doesn't exist. Don't worry - there are plenty of other amazing 
+            It looks like the event you&apos;re looking for has either ended, been moved, 
+            or the page doesn&apos;t exist. Don&apos;t worry - there are plenty of other amazing 
             events waiting for you!
           </p>
 
