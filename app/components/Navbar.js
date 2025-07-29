@@ -123,7 +123,7 @@ export default function Navbar() {
           <div className="hidden md:block">
             <div className="ml-10 flex items-baseline space-x-8">
               {[
-                { href: "/", label: "Home2", icon: "🏠" },
+                { href: "/", label: "Home", icon: "🏠" },
                 { href: "/events", label: "Events", icon: "🎪" },
                 { href: "/about", label: "About", icon: "ℹ️" },
                 { href: "/contact", label: "Contact", icon: "📞" }
