@@ -1,5 +1,6 @@
 "use client"
-import { useState, useEffect } from 'react';
+import Image from "next/image";
+import { useCallback, useEffect, useState } from 'react';
 import { Calendar, MapPin, Clock, Users, Mail, Phone, Ticket, CheckCircle, XCircle, AlertCircle, Star,User, Sparkles } from 'lucide-react';
 
 export default function MyBookings() {
@@ -41,7 +42,7 @@ export default function MyBookings() {
   useEffect(() => {
     fetchUserDetails();
   }, []);
-  const fetchBookings = async () => {
+  const fetchBookings = useCallback(async () => {
     if (!userEmail) return;
 
     try {
@@ -61,13 +62,11 @@ export default function MyBookings() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [userEmail]);
 
   useEffect(() => {
-    if (userEmail) {
-      fetchBookings();
-    }
-  }, [userEmail]);
+    fetchBookings();
+  }, [fetchBookings]);
 
   const formatDate = (dateString) => {
     return new Date(dateString).toLocaleDateString('en-US', {
@@ -196,10 +195,13 @@ export default function MyBookings() {
                   {/* Event Image */}
                   {booking.eventId?.image && (
                     <div className="relative h-48 bg-gradient-to-br from-purple-400 to-pink-400 overflow-hidden">
-                      <img
+                      <Image
                         src={booking.eventId.image}
                         alt={booking.eventId.name}
-                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                        fill
+                        sizes="(max-width: 1024px) 100vw, 33vw"
+                        className="object-cover group-hover:scale-110 transition-transform duration-300"
+                        unoptimized
                       />
                       <div className="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition-colors duration-300"></div>
                     </div>

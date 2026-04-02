@@ -16,7 +16,7 @@ export async function GET(req) {
 
     const decoded = verifyToken(token); // Decode token to get user ID
     const customer = await Customer.findById(decoded.id);
-    console.log("Customer details fetched:", customer);
+    // console.log("Customer details fetched:", customer);
     
     if (!customer) {
       return new Response(

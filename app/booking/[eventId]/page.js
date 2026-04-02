@@ -1,12 +1,15 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 export default function BookingPage({ params }) {
-  const { eventId } = params;
+  const resolvedParams =
+    params && typeof params.then === "function" ? React.use(params) : params;
+  const { eventId } = resolvedParams;
   const router = useRouter();
   const [eventDetails, setEventDetails] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -91,7 +94,7 @@ export default function BookingPage({ params }) {
         await delay(5000); // Delay for 1 second before redirecting
         router.push("/")
       } else {
-        toast.error("Booking failed!")
+        toast.error("Booking failed!  (SendGrid Credit Exceeded)")
         console.error("Failed to book the event");
       }
     } catch (error) {
@@ -126,11 +129,16 @@ export default function BookingPage({ params }) {
             {/* Event Details Card */}
             <div className="bg-white rounded-2xl shadow-xl overflow-hidden transform hover:scale-[1.02] transition-transform duration-300">
               <div className="relative">
-                <img
-                  src={eventDetails.image}
-                  alt={eventDetails.name}
-                  className="w-full h-72 object-cover"
-                />
+                <div className="relative w-full h-72">
+                  <Image
+                    src={eventDetails.image}
+                    alt={eventDetails.name}
+                    fill
+                    sizes="(max-width: 1024px) 100vw, 50vw"
+                    className="object-cover"
+                    unoptimized
+                  />
+                </div>
                 <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div>
                 <div className="absolute bottom-4 left-4 text-white">
                   <h1 className="text-3xl font-bold mb-2">{eventDetails.name}</h1>

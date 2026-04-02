@@ -10,7 +10,7 @@ export async function POST(req) {
 
     // Parse incoming request data
     const { username, email, password } = await req.json();
-    console.log("Received login request:", { username, email });
+    // console.log("Received login request:", { username, email });
 
     // Find customer by email or username
     const customer = await Customer.findOne(

@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import Image from "next/image";
+import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import Navbar from "./components/Navbar";
 
@@ -17,7 +18,7 @@ export default function HomePage() {
   const [showFilters, setShowFilters] = useState(false);
 
   // Mock data for demonstration
-  const mockEvents = [
+  const mockEvents = useMemo(() => ([
     {
       _id: "1",
       name: "Tech Conference 2025",
@@ -78,7 +79,7 @@ export default function HomePage() {
       place: "Boston",
       image: "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400&h=250&fit=crop"
     }
-  ];
+  ]), []);
 
   // Fetch Events
   useEffect(() => {
@@ -99,7 +100,7 @@ export default function HomePage() {
     };
 
     fetchEvents();
-  }, []);
+  }, [mockEvents]);
 
   // Handle booking redirect
   const handleBookNow = (eventId) => {
@@ -111,8 +112,39 @@ export default function HomePage() {
     return [...new Set(events.map(event => event.place))];
   };
 
-  // Apply all filters
-  const applyFilters = () => {
+  const sortEvents = (list, option) => {
+    const sorted = [...list];
+    sorted.sort((a, b) => {
+      if (option === "date") return new Date(a.date) - new Date(b.date);
+      if (option === "price") return a.price - b.price;
+      if (option === "name") return a.name.localeCompare(b.name);
+      return 0;
+    });
+    return sorted;
+  };
+
+  // Handle Search
+  const handleSearch = (query) => {
+    setSearchQuery(query);
+  };
+
+  // Handle Sort
+  const handleSort = (option) => {
+    setSortOption(option);
+  };
+
+  // Clear all filters
+  const clearFilters = () => {
+    setSearchQuery("");
+    setPriceRange({ min: "", max: "" });
+    setSelectedLocation("");
+    setSelectedDateRange({ start: "", end: "" });
+    setSortOption("");
+    setFilteredEvents(events);
+  };
+
+  // Apply filters whenever filter values change
+  useEffect(() => {
     let filtered = events;
 
     // Search filter
@@ -147,53 +179,8 @@ export default function HomePage() {
       });
     }
 
-    setFilteredEvents(filtered);
-  };
-
-  // Handle Search
-  const handleSearch = (query) => {
-    setSearchQuery(query);
-  };
-
-  // Handle Sort
-  const handleSort = (option) => {
-    setSortOption(option);
-    const sorted = [...filteredEvents].sort((a, b) => {
-      if (option === "date") {
-        return new Date(a.date) - new Date(b.date);
-      }
-      if (option === "price") {
-        return a.price - b.price;
-      }
-      if (option === "name") {
-        return a.name.localeCompare(b.name);
-      }
-      return 0;
-    });
-    setFilteredEvents(sorted);
-  };
-
-  // Clear all filters
-  const clearFilters = () => {
-    setSearchQuery("");
-    setPriceRange({ min: "", max: "" });
-    setSelectedLocation("");
-    setSelectedDateRange({ start: "", end: "" });
-    setSortOption("");
-    setFilteredEvents(events);
-  };
-
-  // Apply filters whenever filter values change
-  useEffect(() => {
-    applyFilters();
-  }, [searchQuery, priceRange, selectedLocation, selectedDateRange, events]);
-
-  // Apply sorting after filters are applied
-  useEffect(() => {
-    if (sortOption) {
-      handleSort(sortOption);
-    }
-  }, [filteredEvents.length]);
+    setFilteredEvents(sortOption ? sortEvents(filtered, sortOption) : filtered);
+  }, [searchQuery, priceRange, selectedLocation, selectedDateRange, events, sortOption]);
 
   // Close filters when clicking outside on mobile
   useEffect(() => {
@@ -447,11 +434,16 @@ export default function HomePage() {
                       </div>
 
                       <div className="relative overflow-hidden">
-                        <img
-                          src={event.image || "https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=400&h=250&fit=crop"}
-                          alt={event.name}
-                          className="w-full h-44 lg:h-56 object-cover group-hover:scale-110 transition-transform duration-700"
-                        />
+                        <div className="relative w-full h-44 lg:h-56">
+                          <Image
+                            src={event.image || "https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=400&h=250&fit=crop"}
+                            alt={event.name}
+                            fill
+                            sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 33vw"
+                            className="object-cover group-hover:scale-110 transition-transform duration-700"
+                            unoptimized
+                          />
+                        </div>
                         <div className="absolute top-3 lg:top-4 right-3 lg:right-4 bg-white/20 backdrop-blur-sm rounded-xl lg:rounded-2xl px-2 lg:px-4 py-1 lg:py-2 text-white font-bold shadow-lg border border-white/30">
                           <span className="text-lg lg:text-2xl">💰</span>
                           <span className="ml-1 text-sm lg:text-base">&#8377;{event.price}</span>
