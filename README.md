@@ -295,26 +295,26 @@ flowchart TD
     E -- No --> F[Redirect to Customer Login]
     F --> G{Has Account?}
     G -- No --> H[Register as Customer]
-    H --> I[Fill Name / Email / Password]
-    I --> J[POST /api/auth/customer/register]
+    H --> I["Fill Name / Email / Password"]
+    I --> J["POST /api/auth/customer/register"]
     G -- Yes --> K[Login with Credentials]
-    K --> L[POST /api/auth/customer]
+    K --> L["POST /api/auth/customer"]
     L --> M{Valid Credentials?}
     M -- No --> N[Show Error Toast]
     N --> K
-    M -- Yes --> O[JWT Token Stored in Cookie/LocalStorage]
+    M -- Yes --> O["JWT Token Stored in Cookie/LocalStorage"]
     E -- Yes --> P
     J --> O
-    O --> P[Load Booking Page /booking/eventId]
-    P --> Q[Fill: Name, Email, Phone, Tickets, Details]
+    O --> P["Load Booking Page /booking/eventId"]
+    P --> Q["Fill: Name, Email, Phone, Tickets, Details"]
     Q --> R[Submit Booking Form]
-    R --> S[POST /api/bookings]
+    R --> S["POST /api/bookings"]
     S --> T[Save Booking to MongoDB]
     T --> U[Trigger SendGrid Email]
     U --> V[HTML Confirmation Email Sent]
     V --> W[Show Success Toast]
     W --> X[Redirect to My Bookings]
-    X --> Y[GET /api/customer/bookings]
+    X --> Y["GET /api/customer/bookings"]
     Y --> Z[View Booking History]
 ```
 
@@ -323,7 +323,7 @@ flowchart TD
 ```mermaid
 flowchart TD
     A([Admin Login Page]) --> B[Enter Username and Password]
-    B --> C[POST /api/auth/admin]
+    B --> C["POST /api/auth/admin"]
     C --> D{Valid Admin?}
     D -- No --> E[401 Unauthorized]
     E --> B
@@ -332,25 +332,25 @@ flowchart TD
     G --> H{Choose Action}
 
     H --> I[Manage Events]
-    I --> I1[View All Events - GET /api/events]
+    I --> I1["View All Events - GET /api/events"]
     I1 --> I2{Action on Event}
     I2 --> I3[Create New Event]
-    I3 --> I4[Fill Form: Name, Desc, Date, Time, Price, Place, Image]
-    I4 --> I5[POST /api/events]
+    I3 --> I4["Fill Form: Name, Desc, Date, Time, Price, Place, Image"]
+    I4 --> I5["POST /api/events"]
     I5 --> I6[Event Created in MongoDB]
 
     I2 --> I7[Edit Event]
-    I7 --> I8[PUT /api/events/eventId]
+    I7 --> I8["PUT /api/events/eventId"]
     I8 --> I9[Event Updated]
 
     I2 --> I10[Delete Event]
-    I10 --> I11[DELETE /api/events/eventId]
+    I10 --> I11["DELETE /api/events/eventId"]
     I11 --> I12[Event Removed]
 
     H --> J[View Bookings]
-    J --> J1[GET /api/bookings]
+    J --> J1["GET /api/bookings"]
     J1 --> J2[View All Customer Bookings]
-    J2 --> J3[See: Name, Email, Phone, Tickets, Event]
+    J2 --> J3["See: Name, Email, Phone, Tickets, Event"]
 
     H --> K[Toggle Dark Mode]
     K --> L[Dark/Light UI Switch]
